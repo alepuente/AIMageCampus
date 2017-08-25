@@ -8,8 +8,8 @@ public class Node : MonoBehaviour
     public Node _parent;
     public List<Node> adjNodes;
 
-    public int cost;
-    public int accumCost;
+    public float cost;
+    public float accumCost;
 
     private void Start()
     {

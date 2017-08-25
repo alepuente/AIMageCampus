@@ -54,6 +54,8 @@ public class PathFinder : MonoBehaviour
                     break;
                 case 3: VisitNodeDijkstra(_openNodesList[0]);
                     break;
+                case 4: VisitNodeStar(_openNodesList[0]);
+                    break;
                 default:
                     break;
             }
@@ -150,6 +152,48 @@ public class PathFinder : MonoBehaviour
                 }
             }
             VisitNodeDijkstra(aux);
+        }
+        else
+        {
+            ReturnPath();
+        }
+    }
+
+    void VisitNodeStar(Node node)
+    {
+        _isSearching = false;
+        if (node != _nodeTarget)
+        {
+            for (int i = 0; i < node.adjNodes.Count; i++)
+            {
+                if (_openNodesList.Contains(node.adjNodes[i]))
+                {
+                    if (node.accumCost < node.adjNodes[i]._parent.accumCost)
+                    {
+                        node.adjNodes[i]._parent = node;
+                        node.adjNodes[i].accumCost = node.accumCost + node.adjNodes[i].cost;
+                    }
+                }
+                else if (!_closedNodes.Contains(node.adjNodes[i]))
+                {
+                    _openNodesList.Add(node.adjNodes[i]);
+                    node.adjNodes[i]._parent = node;
+                    node.adjNodes[i].accumCost = node.accumCost + node.adjNodes[i].cost;
+                }
+            }
+            _closedNodes.Enqueue(node);
+            _openNodesList.Remove(node);
+            Node aux;
+            aux = _openNodesList[0];
+            for (int i = 0; i < _openNodesList.Count; i++)
+            {
+                // Se que no es nada eficiente y es una cabeceada pero tengo que entregar ahora, para la proxima entrega lo pongo optimizado :D
+                if ((_openNodesList[i].accumCost + Vector3.Distance(_openNodesList[i].gameObject.transform.position,_nodeTarget.gameObject.transform.position)) < (aux.accumCost + Vector3.Distance(aux.gameObject.transform.position, _nodeTarget.gameObject.transform.position)))
+                {
+                    aux = _openNodesList[i];
+                }
+            }
+            VisitNodeStar(aux);
         }
         else
         {
