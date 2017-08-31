@@ -2,30 +2,138 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Miner : MonoBehaviour {
-    public int _loadAmount;
-    public int _maxLoad;
+public class Miner : MonoBehaviour
+{
     public PathFinder _pathFinder;
-	// Use this for initialization
-	void Start () {
+    private FSMachine _stateMachine;
+
+    public float _loadAmount;
+    public float _maxLoad;
+    public float _speed;
+    private float _mineTimer;
+
+    private int _nodeTrack;
+
+    // Use this for initialization
+    void Start()
+    {
         _pathFinder = GetComponent<PathFinder>();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        switch (_actualState)
+        _stateMachine = new FSMachine();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (_pathFinder._nodeTarget != null && _pathFinder._startingNode != null)
+        {            
+        switch (_stateMachine.getActualState())
         {
-            case 1: GoToMine();
+            case FSMachine.States.Iddle: Iddle();
+                break;
+            case FSMachine.States.GoingToMine: GoToMine();
+                break;
+            case FSMachine.States.Mining: Mine();
+                break;
+            case FSMachine.States.GoingToHouse: GoToHouse();
+                break;
+            case FSMachine.States.Depositing: Deposit();
                 break;
             default:
                 break;
         }
+        }
     }
-
     private void GoToMine()
     {
-        _pathFinder._isSearching = true;
+        if (_pathFinder._path.Count == 0)
+        {
+            _pathFinder.FindPath(4);
+            _nodeTrack = 0;
+        }
+        if (_pathFinder._path.Count > 0)
+        {
+            if (_nodeTrack < _pathFinder._path.Count)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, _pathFinder._path[_nodeTrack].transform.position, _speed * Time.deltaTime);
+                if (gameObject.transform.position == _pathFinder._path[_nodeTrack].transform.position)
+                {
+                    _nodeTrack++;
+                }
+            }
+            else
+            {
+                _stateMachine.SetEvent(FSMachine.Events.ArrivedToMine);
+                _pathFinder._path.Clear();
+            }
+        }
     }
 
-    
+    private void GoToHouse()
+    {
+        if (_pathFinder._path.Count == 0)
+        {
+            _pathFinder.FindPath(4);
+            _nodeTrack = _pathFinder._path.Count;
+        }
+        if (_pathFinder._path.Count > 0)
+        {
+            if (_nodeTrack > 0)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, _pathFinder._path[_nodeTrack].transform.position, _speed * Time.deltaTime);
+                if (gameObject.transform.position == _pathFinder._path[_nodeTrack].transform.position)
+                {
+                    _nodeTrack--;
+                }
+            }
+            else
+            {
+                _stateMachine.SetEvent(FSMachine.Events.ArrivedToHouse);
+                _pathFinder._path.Clear();
+            }
+        }
+    }
+
+    private void Deposit()
+    {
+        if (_loadAmount > 0)
+        {
+            _loadAmount -= 0.1f * Time.deltaTime;
+        }
+        else
+        {
+            _stateMachine.SetEvent(FSMachine.Events.ImEmpty);
+        }
+    }
+
+    private void Mine()
+    {
+        if (_pathFinder._nodeTarget._mineralAmount > 0)
+        {
+            if (_loadAmount <= _maxLoad)
+            {
+                _loadAmount += 0.1f * Time.deltaTime;
+            }
+            else
+            {
+                _stateMachine.SetEvent(FSMachine.Events.ImFull);
+            }
+        }
+        else
+        {
+            _stateMachine.SetEvent(FSMachine.Events.MineEmpty);
+        }
+    }
+
+    private void Iddle()
+    {
+        if (_pathFinder._nodeTarget._mineralAmount > 0)
+        {
+            _stateMachine.SetEvent(FSMachine.Events.MineNotEmpty);
+        }
+        else
+        {
+            _pathFinder.gameObject.transform.Rotate(_pathFinder.gameObject.transform.up, 10f * Time.deltaTime);
+        }
+    }
+
 }

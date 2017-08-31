@@ -15,13 +15,9 @@ public class PathFinder : MonoBehaviour
 
     public List<Node> _openNodesList;
 
-    public Stack<Node> _path;
+    public List<Node> _path;
     private Node _currentNode;
-    public float _speed;
-    public int pathCount;
-    public bool _isSearching;
-
-    public int searchType;
+    public int _searchType;
 
     public static PathFinder _instance;
 
@@ -31,50 +27,67 @@ public class PathFinder : MonoBehaviour
         _instance = this;
         _openNodes = new Queue<Node>();
         _closedNodes = new Queue<Node>();
-
         _openNodesStack = new Stack<Node>();        
 
-        _path = new Stack<Node>();
-        _openNodes.Enqueue(_startingNode);
-        _openNodesStack.Push(_startingNode);
-        _openNodesList.Add(_startingNode);
-        _isSearching = false;
+        _path = new List<Node>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_nodeTarget != null && _openNodes.Count > 0 && _isSearching)
+        if ( Input.GetMouseButtonDown (0))
         {
-            switch (searchType)
+            RaycastHit hit; 
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit))
             {
-                case 1: VisitNodeBreadth(_openNodes.Peek());
-                    break;
-                case 2: VisitNodeDepth(_openNodesStack.Peek());
-                    break;
-                case 3: VisitNodeDijkstra(_openNodesList[0]);
-                    break;
-                case 4: VisitNodeStar(_openNodesList[0]);
-                    break;
-                default:
-                    break;
-            }
-            
-        }
-        if (_path.Count > 0)
-        {
-           transform.position = Vector3.MoveTowards(transform.position,_path.Peek().transform.position,_speed * Time.deltaTime);
-            if (gameObject.transform.position == _path.Peek().transform.position)
-            {
-                _path.Pop();
+                if (hit.transform.tag == "Node")
+                {
+                    _startingNode = hit.transform.GetComponent<Node>();
+                }
             }
         }
-        pathCount = _path.Count;
+        if (Input.GetMouseButtonDown(1))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit))
+            {
+                if (hit.transform.tag == "Node")
+                {
+                    _nodeTarget = hit.transform.GetComponent<Node>();
+                }
+            }
+        }        
+    }
+
+    public void FindPath(int searchType)
+    {
+        _openNodes.Clear();
+        _closedNodes.Clear();
+        _openNodesStack.Clear();
+        _openNodesList.Clear();
+        _path.Clear();
+        _openNodes.Enqueue(_startingNode);
+        _openNodesStack.Push(_startingNode);
+        _openNodesList.Add(_startingNode);
+        switch (searchType)
+        {
+            case 1: VisitNodeBreadth(_openNodes.Peek());
+                break;
+            case 2: VisitNodeDepth(_openNodesStack.Peek());
+                break;
+            case 3: VisitNodeDijkstra(_openNodesList[0]);
+                break;
+            case 4: VisitNodeStar(_openNodesList[0]);
+                break;
+            default:
+                break;
+        }
     }
 
     void VisitNodeBreadth(Node node)
     {
-        _isSearching = false;
         if (node != _nodeTarget)
         {
             for (int i = 0; i < node.adjNodes.Count; i++)
@@ -97,7 +110,6 @@ public class PathFinder : MonoBehaviour
 
     void VisitNodeDepth(Node node)
     {
-        _isSearching = false;
         if (node != _nodeTarget)
         {
             _openNodesStack.Pop();
@@ -120,7 +132,6 @@ public class PathFinder : MonoBehaviour
 
     void VisitNodeDijkstra(Node node)
     {
-        _isSearching = false;
         if (node != _nodeTarget)
         {
             for (int i = 0; i < node.adjNodes.Count; i++)
@@ -161,7 +172,6 @@ public class PathFinder : MonoBehaviour
 
     void VisitNodeStar(Node node)
     {
-        _isSearching = false;
         if (node != _nodeTarget)
         {
             for (int i = 0; i < node.adjNodes.Count; i++)
@@ -205,13 +215,13 @@ public class PathFinder : MonoBehaviour
     void ReturnPath()
     {
         _currentNode = _nodeTarget;
-        _path.Push(_nodeTarget);
+        _path.Add(_nodeTarget);
         while (_currentNode._parent != _startingNode)
         {
-            _path.Push(_currentNode._parent);
+            _path.Add(_currentNode._parent);
             _currentNode = _currentNode._parent;
         }
-        _path.Push(_startingNode);
+        _path.Add(_startingNode);
     }
 
 
