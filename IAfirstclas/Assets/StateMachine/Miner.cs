@@ -24,6 +24,7 @@ public class Miner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         if (_pathFinder._nodeTarget != null && _pathFinder._startingNode != null)
         {            
         switch (_stateMachine.getActualState())
@@ -48,8 +49,27 @@ public class Miner : MonoBehaviour
         if (_pathFinder._path.Count == 0)
         {
             _pathFinder.FindPath(4);
-            _nodeTrack = 0;
+            _nodeTrack = _pathFinder._path.Count - 1;
         }
+        if (_pathFinder._path.Count > 0)
+        {
+            if (_nodeTrack >= 0)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, _pathFinder._path[_nodeTrack].transform.position, _speed * Time.deltaTime);
+                if (gameObject.transform.position == _pathFinder._path[_nodeTrack].transform.position)
+                {
+                    _nodeTrack--;
+                }
+            }
+            else
+            {
+                _stateMachine.SetEvent(FSMachine.Events.ArrivedToMine);
+            }           
+        }
+    }
+
+    private void GoToHouse()
+    {                  
         if (_pathFinder._path.Count > 0)
         {
             if (_nodeTrack < _pathFinder._path.Count)
@@ -58,31 +78,6 @@ public class Miner : MonoBehaviour
                 if (gameObject.transform.position == _pathFinder._path[_nodeTrack].transform.position)
                 {
                     _nodeTrack++;
-                }
-            }
-            else
-            {
-                _stateMachine.SetEvent(FSMachine.Events.ArrivedToMine);
-                _pathFinder._path.Clear();
-            }
-        }
-    }
-
-    private void GoToHouse()
-    {
-        if (_pathFinder._path.Count == 0)
-        {
-            _pathFinder.FindPath(4);
-            _nodeTrack = _pathFinder._path.Count;
-        }
-        if (_pathFinder._path.Count > 0)
-        {
-            if (_nodeTrack > 0)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, _pathFinder._path[_nodeTrack].transform.position, _speed * Time.deltaTime);
-                if (gameObject.transform.position == _pathFinder._path[_nodeTrack].transform.position)
-                {
-                    _nodeTrack--;
                 }
             }
             else
@@ -97,7 +92,7 @@ public class Miner : MonoBehaviour
     {
         if (_loadAmount > 0)
         {
-            _loadAmount -= 0.1f * Time.deltaTime;
+            _loadAmount -= 10f * Time.deltaTime;
         }
         else
         {
@@ -111,16 +106,19 @@ public class Miner : MonoBehaviour
         {
             if (_loadAmount <= _maxLoad)
             {
-                _loadAmount += 0.1f * Time.deltaTime;
+                _loadAmount += 10f * Time.deltaTime;
+                _pathFinder._nodeTarget._mineralAmount -= 10f * Time.deltaTime;
             }
             else
             {
                 _stateMachine.SetEvent(FSMachine.Events.ImFull);
+                _nodeTrack = 0;
             }
         }
         else
         {
             _stateMachine.SetEvent(FSMachine.Events.MineEmpty);
+            _nodeTrack = 0;
         }
     }
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class FSMachine : MonoBehaviour {
+public class FSMachine {
 
     private int[,] _fsm;
     private States _actualState;
@@ -27,25 +27,17 @@ public class FSMachine : MonoBehaviour {
         ImEmpty,
         MineNotEmpty
     }
-    public enum Destiny
-    {
-        GoToMine,
-        GoToHouse,
-        Mine,
-        Deposit,
-        GoIddle
-    }
-
 
     // Use this for initialization
-    void Start () {      
+    public FSMachine () {
         _fsm = new int[rows, columns];
         resetFSM();
-        SetRelative(States.Iddle,Events.MineNotEmpty,Destiny.GoToMine);
-        SetRelative(States.GoingToMine, Events.ArrivedToMine, Destiny.Mine);
-        SetRelative(States.Mining, Events.ImEmpty, Destiny.GoToHouse);
-        SetRelative(States.GoingToHouse, Events.ArrivedToHouse, Destiny.Deposit);
-        SetRelative(States.Depositing, Events.ImEmpty, Destiny.GoIddle);
+        SetRelative(States.Iddle,Events.MineNotEmpty,States.GoingToMine);
+        SetRelative(States.GoingToMine, Events.ArrivedToMine, States.Mining);
+        SetRelative(States.Mining, Events.MineEmpty, States.GoingToHouse);
+        SetRelative(States.Mining, Events.ImFull, States.GoingToHouse);
+        SetRelative(States.GoingToHouse, Events.ArrivedToHouse, States.Depositing);
+        SetRelative(States.Depositing, Events.ImEmpty, States.Iddle);
         _actualState = States.Iddle;
     }
 
@@ -60,13 +52,14 @@ public class FSMachine : MonoBehaviour {
         }
     }
 
-    private void SetRelative(States origin, Events evnt, Destiny dest)
+    private void SetRelative(States origin, Events evnt, States dest)
     {
         _fsm[(int)origin, (int)evnt] = (int)dest;
     }    
 
     public void SetEvent(Events ev)
     {
+        Debug.Log(ev);
         if (_fsm[(int)_actualState, (int)ev] != -1)
         {
            _actualState = (States)_fsm[(int)_actualState, (int)ev];
