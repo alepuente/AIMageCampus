@@ -11,6 +11,7 @@ public class Miner : MonoBehaviour
     public float _maxLoad;
     public float _speed;
     private float _mineTimer;
+    private float totalLoad;
 
     private int _nodeTrack;
 
@@ -24,7 +25,8 @@ public class Miner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        UIManager._instance._goldAm.text = "Total Gold: " + ((int)totalLoad).ToString();
+        UIManager._instance._minerAm.text = "Miner Gold: " + ((int)_loadAmount).ToString(); 
         if (_pathFinder._nodeTarget != null && _pathFinder._startingNode != null)
         {            
         switch (_stateMachine.getActualState())
@@ -93,6 +95,7 @@ public class Miner : MonoBehaviour
         if (_loadAmount > 0)
         {
             _loadAmount -= 10f * Time.deltaTime;
+            totalLoad += 10f * Time.deltaTime;
         }
         else
         {
