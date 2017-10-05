@@ -1,26 +1,24 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Selector : BTChilds
+public class Selector<T> : BTChilds<T> where T : class
 {
     int index;
-    // Use this for initialization
-    void Start()
-    {
-        Reset();
-    }
-
-    void Reset()
-    {
+    public Selector(T blackboard) : base(blackboard){
         index = 0;
     }
-
-    public override States Run()
+    override protected States Run()
     {
         if (_childs.Count > 0)
         {
-            switch (_childs[index]._state)
+            if (index > _childs.Count - 1)
+            {
+                Reset();
+                return States.Fail;
+            }
+            switch (_childs[index].Update())
             {
                 case States.Done:
                     Reset();
@@ -33,12 +31,11 @@ public class Selector : BTChilds
                 default:
                     break;
             }
-            if (index > _childs.Count - 1)
-            {
-                Reset();
-                return States.Fail;
-            }
         }
         return States.Fail;
     }
+
+    protected override void Sleep()    {    }
+    protected override void Awake()    {    }
+    protected override void Reset()    {  index = 0;    }
 }

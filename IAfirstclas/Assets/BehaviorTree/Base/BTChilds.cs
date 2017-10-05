@@ -3,9 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BTChilds : BTNode {
+public abstract class BTChilds<T> : BTNode<T> where T : class
+{
 
-    public List<BTNode> _childs;
+    public List<BTNode<T>> _childs;
+
+    public BTChilds(T blackboard) : base(blackboard)
+    {
+        _childs = new List<BTNode<T>>();
+    }
 
 
     public override bool CanHaveChilds()
@@ -13,12 +19,7 @@ public class BTChilds : BTNode {
         return true;
     }
 
-    public override States Run()
-    {
-        return States.None;
-    }
-
-    public bool AddChild(BTNode node)
+    public bool AddChild(BTNode<T> node)
     {
         if (_childs.Contains(node))
         {
@@ -31,12 +32,4 @@ public class BTChilds : BTNode {
         }
     }
 
-    // Use this for initialization
-    void Start () {
-        _childs = new List<BTNode>();
-	}
-	
-	void Update () {
-		
-	}
 }

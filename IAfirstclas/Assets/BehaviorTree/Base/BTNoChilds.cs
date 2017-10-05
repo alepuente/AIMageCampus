@@ -3,25 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BTNoChilds : BTNode {
+public abstract class BTNoChilds<T> : BTNode<T> where T : class
+{
+    protected BTNoChilds(T blackboard) : base(blackboard){ }
 
     public override bool CanHaveChilds()
     {
         return false;
     }
-
-    public override States Run()
-    {
-        return States.None;
-    }
-
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+   
 }
