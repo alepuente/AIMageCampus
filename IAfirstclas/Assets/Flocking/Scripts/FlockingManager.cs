@@ -29,6 +29,7 @@ public class FlockingManager : MonoBehaviour
         for (int currentBoid = 0; currentBoid < _boids.Count; currentBoid++)
         {
             _alignment += _boids[currentBoid].transform.forward;
+            _boids[currentBoid]._lookObjective = _objective.transform;
 
             //Set boids neighboors
             for (int otherBoid = currentBoid + 1; otherBoid < _boids.Count; otherBoid++)
@@ -36,22 +37,27 @@ public class FlockingManager : MonoBehaviour
                 if (Vector3.Distance(_boids[currentBoid].transform.position, _boids[otherBoid].transform.position) < _minDistance)
                 {
                     _alignment += _boids[otherBoid].transform.forward;
-                 
+
                     _boids[currentBoid]._neighbors.Add(_boids[otherBoid]);
                     _boids[otherBoid]._neighbors.Add(_boids[currentBoid]);
                 }
             }
 
+
             //Ask each boid to check rules      
             _weight = Vector3.Distance(_boids[currentBoid].transform.position, CenterOfNeighboors(_boids[currentBoid])) / _minDistance;
             _cohesion = (CenterOfNeighboors(_boids[currentBoid]) - _boids[currentBoid].transform.position) * _weight;
-            _separation = (_boids[currentBoid].transform.position - CenterOfNeighboors(_boids[currentBoid])) * (1-_weight);
+            _cohesion.Normalize();
+            _separation = (_boids[currentBoid].transform.position - CenterOfNeighboors(_boids[currentBoid])) * (1 - _weight);
+            _separation.Normalize();
             if (_boids[currentBoid]._neighbors.Count > 0)
             {
-                _alignment /= _boids[currentBoid]._neighbors.Count;
+                _alignment /= _boids[currentBoid]._neighbors.Count + 1;
+                _alignment.Normalize();
             }
-            Vector3 result = (_cohesion + _separation + _alignment) / 3;            
-            _boids[currentBoid]._direction = result + _objective.transform.position;            
+            Vector3 result = (_cohesion + _separation + _alignment) / 3;
+            result.Normalize();
+            _boids[currentBoid]._direction = (result + (_objective.transform.position - _boids[currentBoid].transform.position).normalized).normalized;
             _alignment = Vector3.zero;
             _cohesion = Vector3.zero;
             _separation = Vector3.zero;
@@ -68,10 +74,13 @@ public class FlockingManager : MonoBehaviour
         Vector3 aux = Vector3.zero;
         for (int i = 0; i < boid._neighbors.Count; i++)
         {
-            aux += boid._neighbors[i].transform.position;
+            aux = aux + boid._neighbors[i].transform.position;
         }
-        aux /= boid._neighbors.Count;
-        return aux;
+        if (boid._neighbors.Count > 0)
+        {
+            aux /= boid._neighbors.Count;
+        }
+        return aux.normalized;
     }
-    
+
 }

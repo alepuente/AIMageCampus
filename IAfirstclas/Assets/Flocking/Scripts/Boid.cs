@@ -6,7 +6,9 @@ public class Boid : MonoBehaviour {
 
     public Vector3 _direction;
     public List<Boid> _neighbors;
-    public float speed;
+    public float _speed;
+    public Transform _lookObjective;
+    public float _steeringSpeed;
 
 	// Use this for initialization
 	void Start () {
@@ -14,7 +16,9 @@ public class Boid : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {        
-        transform.position = Vector3.MoveTowards(transform.position, _direction, speed * Time.deltaTime);
+	void Update () {
+        transform.Translate(_direction * _speed * Time.deltaTime);
+        //transform.position = Vector3.MoveTowards(transform.position, _direction, _speed * Time.deltaTime);
+        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(_lookObjective.position - transform.position), _steeringSpeed * Time.deltaTime);
 	}
 }
