@@ -5,17 +5,34 @@ using UnityEngine;
 public class FlockingManager : MonoBehaviour
 {
 
-    public List<Boid> _boids;
-    public float _minDistance;
-    public GameObject _objective;
-    public float _weight;
+    private List<Boid> _boids;
+    private float _weight;
     private Vector3 _alignment;
     private Vector3 _cohesion;
     private Vector3 _separation;
 
+    public float _minDistance;
+    public GameObject _objective;
+    public float _cohesionV;
+    public float _separationV;
+    public float _alignmentV;
+    public float _boidsSpeed;
+    public float _boidsSteeringSpeed;
+    public float _directionV;
+
+
+
+
     // Use this for initialization
     void Start()
     {
+        _boids = new List<Boid>();
+        foreach (Boid item in GetComponentsInChildren<Boid>())
+        {
+            _boids.Add(item);
+            item._speed = _boidsSpeed;
+            item._steeringSpeed = _boidsSteeringSpeed;
+        }
     }
 
     // Update is called once per frame
@@ -28,7 +45,6 @@ public class FlockingManager : MonoBehaviour
     {
         for (int currentBoid = 0; currentBoid < _boids.Count; currentBoid++)
         {
-            _alignment += _boids[currentBoid].transform.forward;
             _boids[currentBoid]._lookObjective = _objective.transform;
 
             //Set boids neighboors
@@ -36,8 +52,6 @@ public class FlockingManager : MonoBehaviour
             {
                 if (Vector3.Distance(_boids[currentBoid].transform.position, _boids[otherBoid].transform.position) < _minDistance)
                 {
-                    _alignment += _boids[otherBoid].transform.forward;
-
                     _boids[currentBoid]._neighbors.Add(_boids[otherBoid]);
                     _boids[otherBoid]._neighbors.Add(_boids[currentBoid]);
                 }
@@ -45,41 +59,63 @@ public class FlockingManager : MonoBehaviour
 
 
             //Ask each boid to check rules      
-            _weight = Vector3.Distance(_boids[currentBoid].transform.position, CenterOfNeighboors(_boids[currentBoid])) / _minDistance;
-            _cohesion = (CenterOfNeighboors(_boids[currentBoid]) - _boids[currentBoid].transform.position) * _weight;
+            //Weight Calculation
+            Vector3 center = CalculateCenterOfGroup(_boids[currentBoid]);
+
+            _weight = Vector3.Distance(_boids[currentBoid].transform.position, center) / _minDistance;
+
+            //Cohesion Calculation
+            _cohesion = (center * _cohesionV - _boids[currentBoid].transform.position) * _weight;
             _cohesion.Normalize();
-            _separation = (_boids[currentBoid].transform.position - CenterOfNeighboors(_boids[currentBoid])) * (1 - _weight);
+
+            //Separation Calculation
+            _separation = (_boids[currentBoid].transform.position - center * _separationV) * (1 - _weight);
             _separation.Normalize();
-            if (_boids[currentBoid]._neighbors.Count > 0)
-            {
-                _alignment /= _boids[currentBoid]._neighbors.Count + 1;
-                _alignment.Normalize();
-            }
+
+            //Aligment Calculation
+            _alignment = CalculateAlignment(_boids[currentBoid]);
+
+            //Calculate de vector result
             Vector3 result = (_cohesion + _separation + _alignment) / 3;
             result.Normalize();
+
+            //Setting the boid vector
             _boids[currentBoid]._direction = (result + (_objective.transform.position - _boids[currentBoid].transform.position).normalized).normalized;
+
+            //Reset vectors and Neighboors
             _alignment = Vector3.zero;
             _cohesion = Vector3.zero;
             _separation = Vector3.zero;
             _boids[currentBoid]._neighbors.Clear();
         }
-        /*for (int i = 0; i < _boids.Count; i++)
-        {
-            _boids[i]._neighbors.Clear();
-        }*/
     }
 
-    public Vector3 CenterOfNeighboors(Boid boid)
+    public Vector3 CalculateCenterOfGroup(Boid boid)
     {
-        Vector3 aux = Vector3.zero;
+        Vector3 aux = boid.transform.position;
         for (int i = 0; i < boid._neighbors.Count; i++)
         {
-            aux = aux + boid._neighbors[i].transform.position;
+            aux += boid._neighbors[i].transform.position;
         }
         if (boid._neighbors.Count > 0)
         {
-            aux /= boid._neighbors.Count;
+            aux /= boid._neighbors.Count + 1;
         }
+        return aux;
+    }   
+
+    public Vector3 CalculateAlignment(Boid boid)
+    {
+        Vector3 aux = boid.transform.forward;
+        for (int i = 0; i < boid._neighbors.Count; i++)
+        {
+            aux += boid._neighbors[i].transform.forward;
+        }
+        if (boid._neighbors.Count > 0)
+        {
+            aux /= boid._neighbors.Count + 1;
+        }
+        aux *= _alignmentV;
         return aux.normalized;
     }
 

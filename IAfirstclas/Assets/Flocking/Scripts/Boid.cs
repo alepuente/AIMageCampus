@@ -17,8 +17,8 @@ public class Boid : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        transform.Translate(_direction * _speed * Time.deltaTime);
-        //transform.position = Vector3.MoveTowards(transform.position, _direction, _speed * Time.deltaTime);
-        transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(_lookObjective.position - transform.position), _steeringSpeed * Time.deltaTime);
-	}
+        transform.Translate(Vector3.forward * _speed * Time.deltaTime);
+        transform.forward = Vector3.Lerp(transform.forward, _direction, _steeringSpeed * Time.deltaTime);
+        Debug.DrawLine(transform.position, transform.position + transform.forward * 3, Color.green);
+    }
 }
