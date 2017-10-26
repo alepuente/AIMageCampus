@@ -18,7 +18,6 @@ public class FlockingManager : MonoBehaviour
     public float _alignmentV;
     public float _boidsSpeed;
     public float _boidsSteeringSpeed;
-    public float _directionV;
 
 
 
@@ -65,18 +64,18 @@ public class FlockingManager : MonoBehaviour
             _weight = Vector3.Distance(_boids[currentBoid].transform.position, center) / _minDistance;
 
             //Cohesion Calculation
-            _cohesion = (center * _cohesionV - _boids[currentBoid].transform.position) * _weight;
+            _cohesion = (center - _boids[currentBoid].transform.position) * _weight;
             _cohesion.Normalize();
 
             //Separation Calculation
-            _separation = (_boids[currentBoid].transform.position - center * _separationV) * (1 - _weight);
+            _separation = -_cohesion * (1 - _weight);
             _separation.Normalize();
 
             //Aligment Calculation
             _alignment = CalculateAlignment(_boids[currentBoid]);
 
             //Calculate de vector result
-            Vector3 result = (_cohesion + _separation + _alignment) / 3;
+            Vector3 result = (_cohesion * _cohesionV + _separation * _separationV + _alignment * _alignmentV) / 3;
             result.Normalize();
 
             //Setting the boid vector
@@ -115,7 +114,6 @@ public class FlockingManager : MonoBehaviour
         {
             aux /= boid._neighbors.Count + 1;
         }
-        aux *= _alignmentV;
         return aux.normalized;
     }
 
