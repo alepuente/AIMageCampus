@@ -19,6 +19,6 @@ public class Boid : MonoBehaviour {
 	void Update () {
         transform.Translate(Vector3.forward * _speed * Time.deltaTime);
         transform.forward = Vector3.Lerp(transform.forward, _direction, _steeringSpeed * Time.deltaTime);
-        Debug.DrawLine(transform.position, transform.position + transform.forward * 3, Color.green);
+        //Debug.DrawLine(transform.position, transform.position + transform.forward * 3, Color.green);
     }
 }
