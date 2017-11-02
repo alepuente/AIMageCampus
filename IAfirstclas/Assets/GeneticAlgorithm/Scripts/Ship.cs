@@ -7,8 +7,7 @@ public class Ship : MonoBehaviour {
     public float _score;
     public Chromosome _genome;
     public GameObject _target;
-
-    public delegate void Action();
+    
     private Rigidbody _rgb;
     public float _rotationPower;
     public float _thrusterPower;
@@ -36,7 +35,23 @@ public class Ship : MonoBehaviour {
         {
             if (_timer < _genome._chromosome[i]._time)
             {
-                _genome._chromosome[i]._action();
+                switch (_genome._chromosome[i]._action)
+                {
+                    case Gen.Actions.ApplyTruster:
+                        ApplyTruster();
+                        break;
+                    case Gen.Actions.RotateLeft:
+                        RotateLeft();
+                        break;
+                    case Gen.Actions.RotateRight:
+                        RotateRight();
+                        break;
+                    case Gen.Actions.DoNothing:
+                        DoNothing();
+                        break;
+                    default:
+                        break;
+                }                       
             }
         }
         /*if (Input.GetKey(KeyCode.A))
@@ -71,7 +86,6 @@ public class Ship : MonoBehaviour {
 
     public void DoNothing()
     {
-
     }
 
     public void ResetPos()

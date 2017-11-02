@@ -8,11 +8,12 @@ public class PopulationManager : MonoBehaviour {
     public GameObject _citizenPrefab;
     public int _totalPopulation;
     private Chromosome _chromoManager;
-    private float _timer;
-    public float _testTime;
+    private float _timer = 0;
+    public float _testTime = 10;
     private bool _onTest;
     public GameObject _target;
-    public int _maxActions;
+    public int _maxActions = 10;
+    public int _eliteAmount = 2;
 
 	// Use this for initialization
 	void Start () {
@@ -43,7 +44,7 @@ public class PopulationManager : MonoBehaviour {
             {
                 CheckCitizensScores();
                 List<Chromosome> aux = _genManager.CrossOut(_population);
-                for (int i = 0; i < _population.Count; i++)
+                for (int i = 0; i < _population.Count - _eliteAmount; i++)
                 {
                     _population[i]._genome = aux[i];
                 }

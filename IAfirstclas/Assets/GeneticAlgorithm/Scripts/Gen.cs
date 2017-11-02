@@ -4,8 +4,15 @@ using UnityEngine;
 
 public class Gen : MonoBehaviour
 {
+    public enum Actions
+    {
+        ApplyTruster,
+        RotateLeft,
+        RotateRight,
+        DoNothing
+    }
 
-    public Ship.Action _action;
+    public Actions _action;
     public float _time;
 
     public Gen(ref Ship ship)
@@ -13,21 +20,25 @@ public class Gen : MonoBehaviour
         switch (Random.Range(0, 3))
         {
             case 0:
-                _action = ship.ApplyTruster;
+                _action = Actions.ApplyTruster;
                 break;
             case 1:
-                _action = ship.RotateLeft;
+                if (Random.Range(0,2) == 0)
+                {
+                _action = Actions.RotateLeft;
+                }
+                else
+                {
+                _action = Actions.RotateRight;
+                }            
                 break;
             case 2:
-                _action = ship.RotateRight;
-                break;
-            case 3:
-                _action = ship.DoNothing;
+                _action = Actions.DoNothing;
                 break;
             default:
                 break;
         }
-        _time = Random.Range(0, 3);
+        _time = Random.Range(0f, 4f);
     }
 
 
