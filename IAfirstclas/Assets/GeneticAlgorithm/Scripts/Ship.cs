@@ -2,17 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ship : MonoBehaviour {   
+public class Ship : MonoBehaviour
+{
 
     public float _score;
     public Chromosome _genome;
     public GameObject _target;
-    
-    private Rigidbody _rgb;
+    public float _hitVelocity;
+
     public float _rotationPower;
     public float _thrusterPower;
     public float _timer;
 
+    public int _distanceModifier;
+    public int _hitModifier;
+
+    private Rigidbody _rgb;
     private Vector3 _startPosition;
     private Quaternion _startRotation;
 
@@ -51,7 +56,7 @@ public class Ship : MonoBehaviour {
                         break;
                     default:
                         break;
-                }                       
+                }
             }
         }
         /*if (Input.GetKey(KeyCode.A))
@@ -90,6 +95,7 @@ public class Ship : MonoBehaviour {
 
     public void ResetPos()
     {
+        _hitVelocity = 0;
         transform.position = _startPosition;
         transform.rotation = _startRotation;
         _rgb.isKinematic = true;
@@ -98,6 +104,14 @@ public class Ship : MonoBehaviour {
 
     public void CheckScore()
     {
-        _score = 1000 / Vector3.Distance(transform.position, _target.transform.position);
+        _score = _distanceModifier / Vector3.Distance(transform.position, _target.transform.position) + _hitVelocity / _hitModifier;       
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (_hitVelocity == 0 && collision.transform.tag == "Platform")
+        {
+            _hitVelocity = collision.relativeVelocity.magnitude;
+        }
     }
 }

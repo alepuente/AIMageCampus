@@ -7,13 +7,18 @@ public class PopulationManager : MonoBehaviour {
     public GeneticAlgorith _genManager;
     public GameObject _citizenPrefab;
     public int _totalPopulation;
-    private Chromosome _chromoManager;
-    private float _timer = 0;
     public float _testTime = 10;
-    private bool _onTest;
     public GameObject _target;
     public int _maxActions = 10;
     public int _eliteAmount = 2;
+    public int _distanceModifier;
+    public int _hitModifier;
+    public float _mutationRate;
+    public float _mutationValue;
+
+    private bool _onTest;
+    private Chromosome _chromoManager;
+    private float _timer = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -26,6 +31,8 @@ public class PopulationManager : MonoBehaviour {
             Ship newShip = aux.GetComponent<Ship>();
             _chromoManager.CreateRandomChromosome(ref newShip);
             newShip._target = _target;
+            newShip._distanceModifier = _distanceModifier;
+            newShip._hitModifier = _hitModifier;
             newShip.gameObject.SetActive(false);
             _population.Add(newShip);
         }
@@ -46,6 +53,13 @@ public class PopulationManager : MonoBehaviour {
                 List<Chromosome> aux = _genManager.CrossOut(_population);
                 for (int i = 0; i < _population.Count - _eliteAmount; i++)
                 {
+                    for (int x = 0; x < aux[i]._chromosome.Count; x++)
+                    {
+                        if (Random.Range(0f,2f) < _mutationRate)
+                        {
+                            aux[i]._chromosome[x]._time += Random.Range(-_mutationValue,_mutationValue);
+                        }
+                    }
                     _population[i]._genome = aux[i];
                 }
                 _onTest = false;
