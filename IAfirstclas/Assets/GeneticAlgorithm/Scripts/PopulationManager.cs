@@ -11,8 +11,9 @@ public class PopulationManager : MonoBehaviour {
     public GameObject _target;
     public int _maxActions = 10;
     public int _eliteAmount = 2;
-    public int _distanceModifier;
-    public int _hitModifier;
+    public float _distanceModifier;
+    public float _flyingModifier;
+    public float _hitModifier;
     public float _mutationRate;
     public float _mutationValue;
 
@@ -33,6 +34,7 @@ public class PopulationManager : MonoBehaviour {
             newShip._target = _target;
             newShip._distanceModifier = _distanceModifier;
             newShip._hitModifier = _hitModifier;
+            newShip._flyingModifier = _flyingModifier;
             newShip.gameObject.SetActive(false);
             _population.Add(newShip);
         }

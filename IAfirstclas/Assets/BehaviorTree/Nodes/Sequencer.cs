@@ -25,7 +25,6 @@ public class Sequencer<T> : BTChilds<T> where T : class
                 case States.Done:
                     index++;
                     return States.Running;
-                    break;
                 case States.Running:
                     return States.Running;
                 case States.Fail:

@@ -8,14 +8,17 @@ public class Ship : MonoBehaviour
     public float _score;
     public Chromosome _genome;
     public GameObject _target;
-    public float _hitVelocity;
+    private float _hitVelocity;
+    private float _flyingTime;
+    public float _flyingModifier;
 
     public float _rotationPower;
     public float _thrusterPower;
     public float _timer;
 
-    public int _distanceModifier;
-    public int _hitModifier;
+    public float _distanceModifier;
+    public float _hitModifier;
+    private bool _isFlying;
 
     private Rigidbody _rgb;
     private Vector3 _startPosition;
@@ -35,6 +38,10 @@ public class Ship : MonoBehaviour
 
     void Update()
     {
+        if (_isFlying)
+        {
+            _flyingTime += Time.deltaTime;
+        }
         _timer += Time.deltaTime;
         for (int i = 0; i < _genome._chromosome.Count; i++)
         {
@@ -96,6 +103,8 @@ public class Ship : MonoBehaviour
     public void ResetPos()
     {
         _hitVelocity = 0;
+        _flyingTime = 0;
+        _isFlying = true;
         transform.position = _startPosition;
         transform.rotation = _startRotation;
         _rgb.isKinematic = true;
@@ -104,14 +113,17 @@ public class Ship : MonoBehaviour
 
     public void CheckScore()
     {
-        _score = _distanceModifier / Vector3.Distance(transform.position, _target.transform.position) + _hitVelocity / _hitModifier;       
+        if (_hitVelocity != 0)
+        {
+            _hitVelocity = _hitModifier / _hitVelocity;
+        }
+        _score = _distanceModifier / Vector3.Distance(transform.position, _target.transform.position) + _hitVelocity +  _flyingTime * _flyingModifier;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (_hitVelocity == 0 && collision.transform.tag == "Platform")
-        {
-            _hitVelocity = collision.relativeVelocity.magnitude;
-        }
+        _isFlying = false;
+        _hitVelocity = collision.relativeVelocity.magnitude;
+        Debug.Log("HIT");
     }
 }
