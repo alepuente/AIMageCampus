@@ -2,21 +2,62 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Chromosome : MonoBehaviour
+public class Chromosome 
 {
     public List<Gen> _chromosome;
     public Chromosome()
     {
         _chromosome = new List<Gen>();
     }
-    public int _maxActions;
-
-    public void CreateRandomChromosome(ref Ship ship)
+    public Chromosome(int maxActions)
     {
-        for (int i = 0; i < _maxActions; i++)
+        _chromosome = new List<Gen>();
+        for (int i = 0; i < maxActions; i++)
         {
-            ship._genome._chromosome.Add(new Gen(ref ship));
-        }        
+            _chromosome.Add(CreateRandomGen());
+        }
     }
- 
+
+    public struct Gen
+    {
+        public Actions _action;
+        public float _time;
+    }
+    public enum Actions
+    {
+        ApplyTruster,
+        RotateLeft,
+        RotateRight,
+        DoNothing
+    }
+
+    public Gen CreateRandomGen()
+    {
+        Gen _gen = new Gen();
+        switch (Random.Range(0, 3))
+        {
+            case 0:
+                _gen._action = Actions.ApplyTruster;
+                break;
+            case 1:
+                if (Random.Range(0, 2) == 0)
+                {
+                    _gen._action = Actions.RotateLeft;
+                }
+                else
+                {
+                    _gen._action = Actions.RotateRight;
+                }
+                break;
+            case 2:
+                _gen._action = Actions.DoNothing;
+                break;
+            default:
+                break;
+        }
+        _gen._time = Random.Range(0f, 4f);
+        return _gen;
+    }    
+    
+   
 }

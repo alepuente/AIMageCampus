@@ -17,20 +17,21 @@ public class PopulationManager : MonoBehaviour {
     public float _mutationRate;
     public float _mutationValue;
 
+    [Range(1f, 10.0f)]
+    public float _speed;
+
+
     private bool _onTest;
-    private Chromosome _chromoManager;
     private float _timer = 0;
+    private float fixedDelta = 0.0f;
 
 	// Use this for initialization
 	void Start () {
-        _chromoManager = new Chromosome();
         _genManager = new GeneticAlgorith();
-        _chromoManager._maxActions = _maxActions;//change this, no need to creat one on each ship
         for (int i = 0; i < _totalPopulation; i++)
         {
             GameObject aux = Instantiate(_citizenPrefab);
             Ship newShip = aux.GetComponent<Ship>();
-            _chromoManager.CreateRandomChromosome(ref newShip);
             newShip._target = _target;
             newShip._distanceModifier = _distanceModifier;
             newShip._hitModifier = _hitModifier;
@@ -38,17 +39,21 @@ public class PopulationManager : MonoBehaviour {
             newShip.gameObject.SetActive(false);
             _population.Add(newShip);
         }
+        fixedDelta = Time.fixedDeltaTime;
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate() {
+        Time.timeScale = _speed;
+        Time.fixedDeltaTime = fixedDelta / Time.timeScale;
+
         if (!_onTest)
         {
             TestCitizens();
         }
         if (_onTest)
         {
-            _timer += Time.deltaTime;
+            _timer += Time.fixedDeltaTime;
             if (_timer > _testTime)
             {
                 CheckCitizensScores();
@@ -57,9 +62,11 @@ public class PopulationManager : MonoBehaviour {
                 {
                     for (int x = 0; x < aux[i]._chromosome.Count; x++)
                     {
-                        if (Random.Range(0f,2f) < _mutationRate)
+                        if (Random.Range(0f,1f) < _mutationRate)
                         {
-                            aux[i]._chromosome[x]._time += Random.Range(-_mutationValue,_mutationValue);
+                            Chromosome.Gen gen = aux[i]._chromosome[x];
+                            gen._time += Random.Range(-_mutationValue,_mutationValue);
+                            aux[i]._chromosome[x] = gen;
                         }
                     }
                     _population[i]._genome = aux[i];

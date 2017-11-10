@@ -2,46 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GeneticAlgorith : MonoBehaviour {
+public class GeneticAlgorith {
 
-	// Use this for initialization
-	void Start () {
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
-    public List<Chromosome> CrossOut(List<Ship> population)
+    public List<Chromosome> CrossOut(List<Ship> oldPopulation)
     {
         float total = 0;
-        List<Chromosome> aux = new List<Chromosome>();
-        foreach (Ship item in population)
+        List<Chromosome> _newPopulation = new List<Chromosome>();
+        foreach (Ship item in oldPopulation)
         {
             total += item._score;
         }
-        for (int current = population.Count - 1; current >= 0; current--)
+        for (int current = oldPopulation.Count - 1; current >= 0; current--)
         {
-            for (int other = population.Count - 1; other >= 0; other--)
+            for (int other = oldPopulation.Count - 1; other >= 0; other--)
             {
-                if (Random.Range(0,total) <= population[current]._score + population[other]._score)
+                if (Random.Range(0,total) <= oldPopulation[current]._score + oldPopulation[other]._score)
                 {
-                    if (aux.Count == population.Count)
+                    if (_newPopulation.Count == oldPopulation.Count)
                     {
                         break;
                     }
                     else
                     {
-                        Chromosome[] pair = MixChromosomes(population[current]._genome, population[other]._genome);
-                        aux.Add(pair[0]);
-                        aux.Add(pair[1]);
+                        Chromosome[] pair = MixChromosomes(oldPopulation[current]._genome, oldPopulation[other]._genome);
+                        _newPopulation.Add(pair[0]);
+                        _newPopulation.Add(pair[1]);
                         other = 0;
                     }
                 }
             }
         }
-        return aux;
+        return _newPopulation;
     }
 
     public Chromosome[] MixChromosomes(Chromosome a, Chromosome b)

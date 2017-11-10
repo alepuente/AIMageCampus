@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Ship : MonoBehaviour
 {
-
+    public int _maxActions;
     public float _score;
     public Chromosome _genome;
     public GameObject _target;
@@ -18,7 +18,7 @@ public class Ship : MonoBehaviour
 
     public float _distanceModifier;
     public float _hitModifier;
-    private bool _isFlying;
+    private bool _isFlying = true;
 
     private Rigidbody _rgb;
     private Vector3 _startPosition;
@@ -26,7 +26,7 @@ public class Ship : MonoBehaviour
 
     void Awake()
     {
-        _genome = new Chromosome();
+        _genome = new Chromosome(_maxActions);
     }
 
     void Start()
@@ -36,29 +36,29 @@ public class Ship : MonoBehaviour
         _startRotation = transform.rotation;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (_isFlying)
         {
-            _flyingTime += Time.deltaTime;
+            _flyingTime += Time.fixedDeltaTime;
         }
-        _timer += Time.deltaTime;
+        _timer += Time.fixedDeltaTime;
         for (int i = 0; i < _genome._chromosome.Count; i++)
         {
             if (_timer < _genome._chromosome[i]._time)
             {
                 switch (_genome._chromosome[i]._action)
                 {
-                    case Gen.Actions.ApplyTruster:
+                    case Chromosome.Actions.ApplyTruster:
                         ApplyTruster();
                         break;
-                    case Gen.Actions.RotateLeft:
+                    case Chromosome.Actions.RotateLeft:
                         RotateLeft();
                         break;
-                    case Gen.Actions.RotateRight:
+                    case Chromosome.Actions.RotateRight:
                         RotateRight();
                         break;
-                    case Gen.Actions.DoNothing:
+                    case Chromosome.Actions.DoNothing:
                         DoNothing();
                         break;
                     default:
@@ -83,12 +83,12 @@ public class Ship : MonoBehaviour
 
     public void RotateLeft()
     {
-        transform.Rotate(transform.forward * _rotationPower * Time.deltaTime);
+        transform.Rotate(transform.forward * _rotationPower * Time.fixedDeltaTime);
     }
 
     public void RotateRight()
     {
-        transform.Rotate(-transform.forward * _rotationPower * Time.deltaTime);
+        transform.Rotate(-transform.forward * _rotationPower * Time.fixedDeltaTime);
     }
 
     public void ApplyTruster()
@@ -102,7 +102,7 @@ public class Ship : MonoBehaviour
 
     public void ResetPos()
     {
-        _hitVelocity = 0;
+        _hitVelocity = 50f;
         _flyingTime = 0;
         _isFlying = true;
         transform.position = _startPosition;
@@ -113,17 +113,20 @@ public class Ship : MonoBehaviour
 
     public void CheckScore()
     {
-        if (_hitVelocity != 0)
+        if (_hitVelocity < 1)
         {
-            _hitVelocity = _hitModifier / _hitVelocity;
+            _hitVelocity = 1;
         }
-        _score = _distanceModifier / Vector3.Distance(transform.position, _target.transform.position) + _hitVelocity +  _flyingTime * _flyingModifier;
+        float finalDistance = Vector3.Distance(transform.position, _target.transform.position);
+        _score = _distanceModifier / finalDistance +  _hitModifier / _hitVelocity  +  _flyingTime * _flyingModifier;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         _isFlying = false;
-        _hitVelocity = collision.relativeVelocity.magnitude;
-        Debug.Log("HIT");
+        if (_hitVelocity == 0)
+        {
+          _hitVelocity = collision.relativeVelocity.magnitude;
+        }
     }
 }
