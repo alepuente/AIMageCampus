@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GeneticAlgorith {
 
-    public List<Chromosome> CrossOut(List<Ship> oldPopulation)
+    public static List<Chromosome> CrossOut(List<Ship> oldPopulation)
     {
         float total = 0;
         List<Chromosome> _newPopulation = new List<Chromosome>();
@@ -35,7 +35,7 @@ public class GeneticAlgorith {
         return _newPopulation;
     }
 
-    public Chromosome[] MixChromosomes(Chromosome a, Chromosome b)
+    public static Chromosome[] MixChromosomes(Chromosome a, Chromosome b)
     {
         Chromosome[] result = new Chromosome[2];
         result[0] = new Chromosome();

@@ -18,6 +18,7 @@ public class Ship : MonoBehaviour
 
     public float _distanceModifier;
     public float _hitModifier;
+    public float _objectiveReward;
     private bool _isFlying = true;
 
     private Rigidbody _rgb;
@@ -31,6 +32,7 @@ public class Ship : MonoBehaviour
 
     void Start()
     {
+        gameObject.name = "Ship#" + Random.Range(0, 100);
         _rgb = GetComponent<Rigidbody>();
         _startPosition = transform.position;
         _startRotation = transform.rotation;
@@ -118,7 +120,7 @@ public class Ship : MonoBehaviour
             _hitVelocity = 1;
         }
         float finalDistance = Vector3.Distance(transform.position, _target.transform.position);
-        _score = _distanceModifier / finalDistance +  _hitModifier / _hitVelocity  +  _flyingTime * _flyingModifier;
+        _score = _distanceModifier / finalDistance + _hitModifier / _hitVelocity + _flyingTime * _flyingModifier;
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -126,7 +128,12 @@ public class Ship : MonoBehaviour
         _isFlying = false;
         if (_hitVelocity == 0)
         {
-          _hitVelocity = collision.relativeVelocity.magnitude;
+            _hitVelocity = collision.relativeVelocity.magnitude;
         }
+        if (collision.gameObject.tag == "Objective" && _hitVelocity -_objectiveReward > 1)
+        {
+            _hitVelocity -= _objectiveReward;
+        }
+        
     }
 }
