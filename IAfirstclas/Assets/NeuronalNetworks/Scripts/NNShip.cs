@@ -73,13 +73,16 @@ public class NNShip : MonoBehaviour
         _inputs.Add(transform.up.normalized.x);
         _inputs.Add(transform.up.normalized.y);
 
+        _inputs.Add(_rgb.velocity.normalized.x);
+        _inputs.Add(_rgb.velocity.normalized.y);
+
         _outputs = _brain.UpdateNN(_inputs);
 
         if (_isFlying)
         {
-         ApplyTruster(_outputs[0]);
-         RotateLeft(_outputs[1]);
-         RotateRight(_outputs[2]);
+            ApplyTruster(_outputs[0]);
+            RotateLeft(_outputs[1]);
+            RotateRight(_outputs[2]);
         }
 
         _inputs.Clear();

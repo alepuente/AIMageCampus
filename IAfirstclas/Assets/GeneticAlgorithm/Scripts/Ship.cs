@@ -45,26 +45,30 @@ public class Ship : MonoBehaviour
             _flyingTime += Time.fixedDeltaTime;
         }
         _timer += Time.fixedDeltaTime;
-        for (int i = 0; i < _genome._chromosome.Count; i++)
+        if (_isFlying)
         {
-            if (_timer < _genome._chromosome[i]._time)
+
+            for (int i = 0; i < _genome._chromosome.Count; i++)
             {
-                switch (_genome._chromosome[i]._action)
+                if (_timer < _genome._chromosome[i]._time)
                 {
-                    case Chromosome.Actions.ApplyTruster:
-                        ApplyTruster();
-                        break;
-                    case Chromosome.Actions.RotateLeft:
-                        RotateLeft();
-                        break;
-                    case Chromosome.Actions.RotateRight:
-                        RotateRight();
-                        break;
-                    case Chromosome.Actions.DoNothing:
-                        DoNothing();
-                        break;
-                    default:
-                        break;
+                    switch (_genome._chromosome[i]._action)
+                    {
+                        case Chromosome.Actions.ApplyTruster:
+                            ApplyTruster();
+                            break;
+                        case Chromosome.Actions.RotateLeft:
+                            RotateLeft();
+                            break;
+                        case Chromosome.Actions.RotateRight:
+                            RotateRight();
+                            break;
+                        case Chromosome.Actions.DoNothing:
+                            DoNothing();
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
         }
@@ -130,10 +134,10 @@ public class Ship : MonoBehaviour
         {
             _hitVelocity = collision.relativeVelocity.magnitude;
         }
-        if (collision.gameObject.tag == "Objective" && _hitVelocity -_objectiveReward > 1)
+        if (collision.gameObject.tag == "Objective" && _hitVelocity - _objectiveReward > 1)
         {
             _hitVelocity -= _objectiveReward;
         }
-        
+
     }
 }
