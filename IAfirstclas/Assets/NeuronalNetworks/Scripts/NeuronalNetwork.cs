@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NeuronalNetwork : MonoBehaviour
+public class NeuronalNetwork
 {
-
     public struct Neuron
     {
         public int _inputs;
@@ -15,7 +14,7 @@ public class NeuronalNetwork : MonoBehaviour
             _weights = new List<float>();
             for (int i = 0; i < _inputs; i++)
             {
-                _weights[i] = Random.Range(-1f, 1f);
+                _weights.Add(Random.Range(-1f, 1f));
             }
         }
     }
@@ -29,7 +28,7 @@ public class NeuronalNetwork : MonoBehaviour
             _neurons = new List<Neuron>();
             for (int i = 0; i < _neuronsCount; i++)
             {
-                _neurons[i] = new Neuron(inputs);
+                _neurons.Add(new Neuron(inputs));
             }
         }
     }
@@ -38,12 +37,23 @@ public class NeuronalNetwork : MonoBehaviour
     public int _outputs;
     public int _hiddenLayers;
     public int _neuronsPerLayer;
-    List<NeuronLayer> _layers;
-    public float _bias;
+    private List<NeuronLayer> _layers;
     public float _linearGrade;
+    public float _bias;
+
+    public NeuronalNetwork(int inputs, int outputs, int hiddenLayers, int neuronsPerLayer, float linearGrade, float bias)
+    {
+        _inputs = inputs;
+        _outputs = outputs;
+        _hiddenLayers = hiddenLayers;
+        _neuronsPerLayer = neuronsPerLayer;
+        _linearGrade = linearGrade;
+        _bias = bias;
+    }
 
     public void CreateNet()
     {
+        _layers = new List<NeuronLayer>();
         //create the layers of the network
         if (_hiddenLayers > 0)
         {
@@ -60,7 +70,7 @@ public class NeuronalNetwork : MonoBehaviour
         }
     }
 
-    public List<float> UpdateNN(ref List<float> inputs)
+    public List<float> UpdateNN(List<float> inputs)
     {
         //stores the resultant outputs from each layer
         List<float> outputs = new List<float>();
@@ -76,7 +86,7 @@ public class NeuronalNetwork : MonoBehaviour
         {
             if (i > 0)
             {
-                inputs = outputs;
+                inputs = new List<float>(outputs);
             }
             outputs.Clear();
             cWeight = 0;
@@ -110,5 +120,47 @@ public class NeuronalNetwork : MonoBehaviour
         float sigmoid = 0;
         sigmoid = (1 / (1 + Mathf.Exp(-activation / _linearGrade)));
         return sigmoid;
+    }
+
+    public int TotalWeights()
+    {
+        int totalWeights = 0;
+        foreach (NeuronLayer item in _layers)
+        {
+            totalWeights += (item._neuronsCount * _inputs) + item._neuronsCount;
+        }
+        return 0;
+    }
+
+    public NNChromosome GetWeights()
+    {
+        NNChromosome _weights = new NNChromosome();
+        foreach (NeuronLayer layer in _layers)
+        {
+            foreach (Neuron neuron in layer._neurons)
+            {
+                foreach (float weight in neuron._weights)
+                {
+                    _weights._chromosome.Add(new NNChromosome.Gen(weight));
+                }
+            }
+        }
+        return _weights;
+    }
+
+    public void SetWeights(NNChromosome newWeights)
+    {
+        int aux = 0;
+        for (int i = 0; i < _layers.Count; i++)
+        {
+            for (int f = 0; f < _layers[i]._neuronsCount; f++)
+            {
+                for (int g = 0; g < _layers[i]._neurons[f]._weights.Count; g++)
+                {
+                    _layers[i]._neurons[f]._weights[g] = newWeights._chromosome[aux]._weight;
+                    aux++;
+                }
+            }
+        }
     }
 }

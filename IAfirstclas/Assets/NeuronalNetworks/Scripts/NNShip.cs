@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class NNShip : MonoBehaviour {
+public class NNShip : MonoBehaviour
+{
     public int _maxActions;
     public float _score;
     public NNChromosome _genome;
     public GameObject _target;
     private float _hitVelocity;
     private float _flyingTime;
-    public float _flyingModifier;
 
     public float _rotationPower;
     public float _thrusterPower;
     public float _timer;
 
     public float _distanceModifier;
+    public float _flyingModifier;
     public float _hitModifier;
     public float _objectiveReward;
     private bool _isFlying = true;
@@ -26,11 +27,21 @@ public class NNShip : MonoBehaviour {
 
     public NeuronalNetwork _brain;
 
+    public int inputs;
+    public int outputs;
+    public int neuronsPerLayer;
+    public int hiddenLayers;
+    public float linearGrade;
+    public float bias;
 
+    List<float> _inputs;
+    List<float> _outputs;
 
     void Awake()
     {
-        _genome = new NNChromosome(_maxActions);
+        _brain = new NeuronalNetwork(inputs, outputs, hiddenLayers, neuronsPerLayer, linearGrade, bias);
+        _brain.CreateNet();
+        _genome = _brain.GetWeights();
     }
 
     void Start()
@@ -39,6 +50,13 @@ public class NNShip : MonoBehaviour {
         _rgb = GetComponent<Rigidbody>();
         _startPosition = transform.position;
         _startRotation = transform.rotation;
+        _inputs = new List<float>();
+        _outputs = new List<float>();
+    }
+
+    public void UpdateWeights()
+    {
+        _brain.SetWeights(_genome);
     }
 
     void FixedUpdate()
@@ -48,61 +66,39 @@ public class NNShip : MonoBehaviour {
             _flyingTime += Time.fixedDeltaTime;
         }
         _timer += Time.fixedDeltaTime;
-        for (int i = 0; i < _genome._chromosome.Count; i++)
+
+        _inputs.Add((_target.transform.position - transform.position).normalized.x);
+        _inputs.Add((_target.transform.position - transform.position).normalized.y);
+
+        _inputs.Add(transform.up.normalized.x);
+        _inputs.Add(transform.up.normalized.y);
+
+        _outputs = _brain.UpdateNN(_inputs);
+
+        if (_isFlying)
         {
-            if (_timer < _genome._chromosome[i]._time)
-            {
-                switch (_genome._chromosome[i]._action)
-                {
-                    case NNChromosome.Actions.ApplyTruster:
-                        ApplyTruster();
-                        break;
-                    case NNChromosome.Actions.RotateLeft:
-                        RotateLeft();
-                        break;
-                    case NNChromosome.Actions.RotateRight:
-                        RotateRight();
-                        break;
-                    case NNChromosome.Actions.DoNothing:
-                        DoNothing();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        /*if (Input.GetKey(KeyCode.A))
-        {
-            RotateLeft();
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            RotateRight();
+         ApplyTruster(_outputs[0]);
+         RotateLeft(_outputs[1]);
+         RotateRight(_outputs[2]);
         }
 
-        if (Input.GetKey(KeyCode.W))
-        {
-            ApplyTruster();
-        }*/
+        _inputs.Clear();
+        _outputs.Clear();
     }
 
-    public void RotateLeft()
+    public void RotateLeft(float output)
     {
-        transform.Rotate(transform.forward * _rotationPower * Time.fixedDeltaTime);
+        transform.Rotate(transform.forward * (_rotationPower * output) * Time.fixedDeltaTime);
     }
 
-    public void RotateRight()
+    public void RotateRight(float output)
     {
-        transform.Rotate(-transform.forward * _rotationPower * Time.fixedDeltaTime);
+        transform.Rotate(-transform.forward * (_rotationPower * output) * Time.fixedDeltaTime);
     }
 
-    public void ApplyTruster()
+    public void ApplyTruster(float output)
     {
-        _rgb.AddForce(transform.up * _thrusterPower, ForceMode.Acceleration);
-    }
-
-    public void DoNothing()
-    {
+        _rgb.AddForce(transform.up * (_thrusterPower * output), ForceMode.Acceleration);
     }
 
     public void ResetPos()

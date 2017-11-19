@@ -71,11 +71,12 @@ public class NNPopulationManager : MonoBehaviour {
                         if (Random.Range(0f, 1f) < _mutationRate)
                         {
                             NNChromosome.Gen gen = aux[i]._chromosome[x];
-                            gen._time += Random.Range(-_mutationValue, _mutationValue);
+                            gen._weight += Random.Range(-_mutationValue, _mutationValue);
                             aux[i]._chromosome[x] = gen;
                         }
                     }
                     _population[i]._genome = aux[i];
+                    _population[i].UpdateWeights();
                 }
                 _onTest = false;
                 _timer = 0;
