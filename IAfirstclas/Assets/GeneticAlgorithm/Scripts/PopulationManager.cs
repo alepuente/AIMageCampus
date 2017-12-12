@@ -17,6 +17,7 @@ public class PopulationManager : MonoBehaviour {
     public float _mutationRate;
     public float _mutationValue;
     public float _objectiveReward;
+    List<Chromosome> aux;
 
     public Text _generationText;
     private int _generation = 0;
@@ -31,6 +32,7 @@ public class PopulationManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         _population = new List<Ship>();
+        aux = new List<Chromosome>();
         for (int i = 0; i < _totalPopulation; i++)
         {
             GameObject aux = Instantiate(_citizenPrefab);
@@ -61,7 +63,8 @@ public class PopulationManager : MonoBehaviour {
             if (_timer > _testTime)
             {
                 CheckCitizensScores();
-                List<Chromosome> aux = GeneticAlgorith.CrossOut(_population);
+                aux.Clear();
+                aux = GeneticAlgorith.CrossOut(_population);
                 for (int i = 0; i < _population.Count - _eliteAmount; i++)
                 {
                     for (int x = 0; x < aux[i]._chromosome.Count; x++)
@@ -97,6 +100,7 @@ public class PopulationManager : MonoBehaviour {
         });
         _generation++;
         _generationText.text = "Generation: " + _generation.ToString()+ "\n Best Score: "+ ((int)_population[_population.Count-1]._score).ToString() + "\n Average Score: " + (int)total / _population.Count;
+       
     }
 
     private void TestCitizens()

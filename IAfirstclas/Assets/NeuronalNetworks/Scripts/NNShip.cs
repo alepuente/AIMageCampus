@@ -52,6 +52,7 @@ public class NNShip : MonoBehaviour
         _startRotation = transform.rotation;
         _inputs = new List<float>();
         _outputs = new List<float>();
+        ResetShip();
     }
 
     public void UpdateWeights()
@@ -104,7 +105,7 @@ public class NNShip : MonoBehaviour
         _rgb.AddForce(transform.up * (_thrusterPower * output), ForceMode.Acceleration);
     }
 
-    public void ResetPos()
+    public void ResetShip()
     {
         _hitVelocity = 50f;
         _flyingTime = 0;

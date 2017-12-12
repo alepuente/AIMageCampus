@@ -36,6 +36,7 @@ public class Ship : MonoBehaviour
         _rgb = GetComponent<Rigidbody>();
         _startPosition = transform.position;
         _startRotation = transform.rotation;
+        ResetPos();
     }
 
     void FixedUpdate()

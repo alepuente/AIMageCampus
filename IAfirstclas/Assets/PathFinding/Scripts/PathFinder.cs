@@ -197,7 +197,6 @@ public class PathFinder : MonoBehaviour
             aux = _openNodesList[0];
             for (int i = 0; i < _openNodesList.Count; i++)
             {
-                // Se que no es nada eficiente y es una cabeceada pero tengo que entregar ahora, para la proxima entrega lo pongo optimizado :D
                 if ((_openNodesList[i].accumCost + Vector3.Distance(_openNodesList[i].gameObject.transform.position,_nodeTarget.gameObject.transform.position)) < (aux.accumCost + Vector3.Distance(aux.gameObject.transform.position, _nodeTarget.gameObject.transform.position)))
                 {
                     aux = _openNodesList[i];

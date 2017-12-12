@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/Neuronalnetworks.unity
+- path: Assets/Scenes/NeuronalNetworks.unity
   isLoaded: 1
   isActive: 1

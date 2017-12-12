@@ -17,7 +17,7 @@ public class NNPopulationManager : MonoBehaviour {
     public float _objectiveReward;
     public float _mutationRate;
     public float _mutationValue;
-
+    List<NNChromosome> aux;
     public Text _generationText;
     private int _generation = 0;
 
@@ -32,6 +32,7 @@ public class NNPopulationManager : MonoBehaviour {
     void Start()
     {
         _population = new List<NNShip>();
+        aux = new List<NNChromosome>();
         for (int i = 0; i < _totalPopulation; i++)
         {
             GameObject aux = Instantiate(_citizenPrefab);
@@ -63,7 +64,8 @@ public class NNPopulationManager : MonoBehaviour {
             if (_timer > _testTime)
             {
                 CheckCitizensScores();
-                List<NNChromosome> aux = NNGeneticAlgorith.CrossOut(_population);
+                aux.Clear();
+                aux = NNGeneticAlgorith.CrossOut(_population);
                 for (int i = 0; i < _population.Count - _eliteAmount; i++)
                 {
                     for (int x = 0; x < aux[i]._chromosome.Count; x++)
@@ -89,7 +91,7 @@ public class NNPopulationManager : MonoBehaviour {
         foreach (NNShip item in _population)
         {
             item.CheckScore();
-            item.ResetPos();
+            item.ResetShip();
             item._timer = 0;
             item.gameObject.SetActive(false);
             total += item._score;
@@ -100,7 +102,10 @@ public class NNPopulationManager : MonoBehaviour {
         });
         _generation++;
         _generationText.text = "Generation: " + _generation.ToString() + "\n Best Score: " + ((int)_population[_population.Count - 1]._score).ToString() + "\n Average Score: " + (int)total / _population.Count;
-
+        for (int i = _population.Count - _eliteAmount; i < _population.Count; i++)
+        {
+            Debug.Log("Pos: " + i + " score: " + _population[i]._score);
+        }
     }
 
     private void TestCitizens()
